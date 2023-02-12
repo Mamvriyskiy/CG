@@ -134,23 +134,29 @@ def create_described_radius(a, b, c, p):
 def create_inscribed_radius(a, b, c, p):
     return sqrt((p - a) * (p - b) * (p - c) / p)
 
+#Поиск стороны треугольника
 def create_side(x1, x2, y1, y2):
     return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2))
 
+#проверка сторон треугольника
 def triangle_test(a, b, c):
     return a + b > c and b + c > a and c + a > b
 
+#Поиск площади окружности
 def create_sircle_square(r):
     return pi * pow(r, 2)
 
+#Поиск треугольника
 def search_triangle():
     if (len(data_x) < 3):
         showerror(title = "Ошибка", message = "Невозможно построить треугольник.\nТочек < 3")
     else:
+        flag = 1
+        res_indx = []
+        minl = float("inf")
         for i in range(len(data_x)):
             for j in range(i + 1, len(data_x)):
                 for k in range(j + 1, len(data_x)):
-                    print(data_x[i], data_x[j], data_x[k])
                     a = create_side(data_x[i], data_x[j], data_y[i], data_y[j])
                     b = create_side(data_x[i], data_x[k], data_y[i], data_y[k])
                     c = create_side(data_x[j], data_x[k], data_y[j], data_y[k])
@@ -160,9 +166,20 @@ def search_triangle():
                         r_desc = create_described_radius(a, b, c, p)
                         s_insc = create_sircle_square(r_insc)
                         s_desc = create_sircle_square(r_desc)
-            
+                        if (minl > s_desc - s_insc):
+                            minl = s_desc - s_insc
+                            res_indx = [[data_x[i], data_x[j], data_x[k], data_x[i]], [data_y[i], data_y[j],  data_y[k], data_y[i]]]
 
+                        flag = 0
 
+        plt.plot(res_indx[0], res_indx[1], '-o', c = "red")
+        plt.draw()
+        
+
+        if (flag):
+            showerror(title = "Ошибка", message = "Треугольники не найдены")
+
+                    
 
 def application():
     window = Tk()
@@ -187,9 +204,6 @@ def application():
     NavigationToolbar2Tk(figure_canvas, frame)
 
     figure_canvas.get_tk_widget().pack(side = TOP, fill = BOTH, expand = 1)
-
-    # plt.xlim(0, 100)
-    # plt.ylim(0, 100)
 
     #Блок ввода координат точек для добавления
     add_label_x = Label(window, text = "X:", font = ("Arial", 25, "bold"))
@@ -255,31 +269,4 @@ def application():
 if __name__ == "__main__":
     application()
 
-
-   # figure = Figure(figsize = (8, 7.4), dpi = 100)
-
-    # figure_canvas = FigureCanvasTkAgg(figure, frame)
-    # NavigationToolbar2Tk(figure_canvas, frame)
-
-    
-    # # axes = figure.add_subplot()
-
-    # # axes.relim(0, 100, 100)
-    # # axes.xlim(0, 100)
-
-    # figure_canvas.get_tk_widget().pack(side = TOP, fill = BOTH, expand = 1)
-
-
- # if (flag):
-    #     fig, ax = plt.subplots(dpi = 100, figsize = (8, 7.2), facecolor = "white")
-
-    #     plt.xlim(0, 100)
-    #     plt.ylim(0, 100)
-
-    #     ax.scatter(50, 50)
-
-    #     figure_canvas = FigureCanvasTkAgg(fig, frame)
-    #     NavigationToolbar2Tk(figure_canvas, frame)
-
-    #     figure_canvas.get_tk_widget().pack(side = TOP, fill = BOTH, expand = 1)
 
