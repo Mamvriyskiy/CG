@@ -16,6 +16,7 @@ from tkinter.messagebox import showerror, showwarning, showinfo
 data_x = []
 data_y = []
 data = []
+data_tr = []
 
 def check_points(x, y):
     try:
@@ -45,6 +46,10 @@ def add_points_graph():
 
 
 def del_points_graph():
+    if (len(data_x) == 0):
+        showerror(title = "Ошибка ввода", message = "Множество точек пусто")
+        return 
+        
     x = del_entry_x.get()
     y = del_entry_y.get()
     flag = check_points(x, y)
@@ -62,9 +67,11 @@ def del_points_graph():
         del data_x[i]
         del data_y[i]
 
-        points = data[i][0]
+        # points = data[i][0]
 
-        points.remove()
+        data[i][0].remove()
+
+        del data[i]
 
         plt.draw()
 
@@ -82,7 +89,7 @@ def del_points_graph():
 #     return 1
 
 def clear_graph():
-    
+    clear_triagle()
     for i in range(len(data)):
         points = data[i][0]
         points.remove()
@@ -92,6 +99,14 @@ def clear_graph():
     data_x.clear()
     data_y.clear()
     data.clear()
+
+def clear_triagle():
+    for i in range(len(data_tr)):
+        points = data_tr[i][0]
+        points.remove()
+
+    plt.draw()
+    data_tr.clear()
 
 def show_table_coords():
     root = Toplevel()
@@ -148,11 +163,14 @@ def create_sircle_square(r):
 
 #Поиск треугольника
 def search_triangle():
+    clear_triagle()
     if (len(data_x) < 3):
         showerror(title = "Ошибка", message = "Невозможно построить треугольник.\nТочек < 3")
     else:
         flag = 1
         res_indx = []
+        last_indx = []
+        minl_last = float("inf")
         minl = float("inf")
         for i in range(len(data_x)):
             for j in range(i + 1, len(data_x)):
@@ -167,12 +185,28 @@ def search_triangle():
                         s_insc = create_sircle_square(r_insc)
                         s_desc = create_sircle_square(r_desc)
                         if (minl > s_desc - s_insc):
+                            minl_last = minl
                             minl = s_desc - s_insc
+                            last_indx = res_indx
                             res_indx = [[data_x[i], data_x[j], data_x[k], data_x[i]], [data_y[i], data_y[j],  data_y[k], data_y[i]]]
+                        elif (minl_last > s_desc - s_insc):
+                            minl_last = s_desc - s_insc
+                            last_indx = [[data_x[i], data_x[j], data_x[k], data_x[i]], [data_y[i], data_y[j],  data_y[k], data_y[i]]]
 
                         flag = 0
 
-        plt.plot(res_indx[0], res_indx[1], '-o', c = "red")
+        if (len(res_indx)):
+            a = plt.plot(res_indx[0], res_indx[1], '-o', c = "red")
+            data_tr.append(a)
+            result = "Red: {}".format(minl)
+            label_text_a = Label(window, text = result,  font = ("Arial", 12))
+            label_text_a.place(x = 805, y = 655)
+            if (len(last_indx)):
+                a = plt.plot(last_indx[0], last_indx[1], '-o', c = "blue")
+                data_tr.append(a)
+                result = "Blue: {}".format(minl_last)
+                label_text_b = Label(window, text = result,  font = ("Arial", 12))
+                label_text_b.place(x = 805, y = 690)
         plt.draw()
         
 
@@ -182,6 +216,7 @@ def search_triangle():
                     
 
 def application():
+    global window
     window = Tk()
     window.title("Лабораторная 1")
     window.geometry("1100x800")
@@ -225,43 +260,49 @@ def application():
 
     #Блок ввода координат точек для удаления
     del_label_x = Label(window, text = "X:", font = ("Arial", 25, "bold"))
-    del_label_x.place(x = 810, y = 295)
+    del_label_x.place(x = 810, y = 265)
 
     global del_entry_x
     del_entry_x = Entry(window, width = 10)
-    del_entry_x.place(x = 840, y = 300)
+    del_entry_x.place(x = 840, y = 270)
 
     del_label_y = Label(window, text = "Y:", font = ("Arial", 25, "bold"))
-    del_label_y.place(x = 950, y = 295)
+    del_label_y.place(x = 950, y = 265)
 
     global del_entry_y
     del_entry_y = Entry(window, width = 10)
-    del_entry_y.place(x = 980, y = 300)
+    del_entry_y.place(x = 980, y = 270)
 
     del_button = Button(window, text = "Удалить", font = ("Arial", 20, "bold"), command = del_points_graph)
-    del_button.place(x = 890, y = 350)
+    del_button.place(x = 890, y = 320)
 
-    clear_button = Button(window, text = "Очистить", width = 15, height = 2, font = ("Arial", 20, "bold"), command = clear_graph)
-    clear_button.place(x = 845, y = 410)
+    #Очистка данных с графа
+    clear_button = Button(window, text = "Оч. Точки", width = 15, height = 2, font = ("Arial", 20, "bold"), command = clear_graph)
+    clear_button.place(x = 845, y = 370)
 
+    clear_button_tr = Button(window, text = "Оч. Треугольники", width = 15, height = 2, font = ("Arial", 20, "bold"), command = clear_triagle)
+    clear_button_tr.place(x = 845, y = 430)
+
+    #Кнопка для вывода таблицы
     show_button = Button(window, text = "Таблица", width = 15, height = 2, font = ("Arial", 20, "bold"), command = show_table_coords)
-    show_button.place(x = 845, y = 470)
+    show_button.place(x = 845, y = 490)
 
+    #Кнопка для запуска посика треугольника
     start_button = Button(window, text = "Поиск", width = 15, height = 2, font = ("Arial", 20, "bold"), command = search_triangle)
-    start_button.place(x = 845, y = 530)
+    start_button.place(x = 845, y = 550)
 
     horizontal_line = Frame(window, width = 300, height = 5, bg = "black")
-    horizontal_line.place(x = 800, y = 650)
+    horizontal_line.place(x = 800, y = 620)
 
-    #Вывод правил пользования программой
-    label_text_a = Label(window, text = "1)Ввод координат осуществляется с помощью \nцелых чисел или с чисел с плавающей точкой.",  font = ("Arial", 12))
-    label_text_a.place(x = 805, y = 655)
+    # #Вывод правил пользования программой
+    # label_text_a = Label(window, text = "1)Ввод координат осуществляется с помощью \nцелых чисел или с чисел с плавающей точкой.",  font = ("Arial", 12))
+    # label_text_a.place(x = 805, y = 655)
 
-    label_text_b = Label(window, text = "2)Вывод введенных координат отображается на \nграфике в виде точек и в таблице координат.",  font = ("Arial", 12))
-    label_text_b.place(x = 805, y = 690)
+    # label_text_b = Label(window, text = "2)Вывод введенных координат отображается на \nграфике в виде точек и в таблице координат.",  font = ("Arial", 12))
+    # label_text_b.place(x = 805, y = 690)
 
-    label_text_c = Label(window, text = "3)Для поиска треугольника нажмите кнопку 'Поиск'.",  font = ("Arial", 12))
-    label_text_c.place(x = 805, y = 725)
+    # label_text_c = Label(window, text = "3)Для поиска треугольника нажмите кнопку 'Поиск'.",  font = ("Arial", 12))
+    # label_text_c.place(x = 805, y = 725)
 
     window.mainloop()
 
