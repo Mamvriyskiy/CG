@@ -110,7 +110,7 @@ def clear_triagle():
 
 def show_table_coords():
     root = Toplevel()
-    root.title("METANIT.COM")
+    root.title("Таблица координат")
     root.geometry("250x300") 
     root.rowconfigure(index = 0, weight = 1)
     root.columnconfigure(index = 0, weight = 1)
@@ -137,15 +137,15 @@ def show_table_coords():
     tree.configure(yscroll = scrollbar.set)
     scrollbar.grid(row = 0, column = 1, sticky = "ns")
 
+#Поиск полупериметра
 def create_semi_perimeter(a, b, c):
     return (a + b + c) / 2
 
-#поиск площади описанной окружности
+#поиск радиуса описанной окружности
 def create_described_radius(a, b, c, p):
     return a * b * c / (4 * sqrt(p * (p - a) * (p - b) * (p - c)))
 
-
-#поиск площади вписанной окружности
+#поиск радиуса вписанной окружности
 def create_inscribed_radius(a, b, c, p):
     return sqrt((p - a) * (p - b) * (p - c) / p)
 
@@ -195,24 +195,24 @@ def search_triangle():
 
                         flag = 0
 
+        if (flag):
+            showerror(title = "Ошибка", message = "Треугольники не найдены")
+            return 
+
         if (len(res_indx)):
-            a = plt.plot(res_indx[0], res_indx[1], '-o', c = "red")
+            a = plt.plot(res_indx[0], res_indx[1], '-o', c = "black")
             data_tr.append(a)
-            result = "Red: {}".format(minl)
+            result = "Black: {0:.5f}".format(minl)
             label_text_a = Label(window, text = result,  font = ("Arial", 12))
             label_text_a.place(x = 805, y = 655)
             if (len(last_indx)):
-                a = plt.plot(last_indx[0], last_indx[1], '-o', c = "blue")
+                a = plt.plot(last_indx[0], last_indx[1], '--o', c = "yellow")
                 data_tr.append(a)
-                result = "Blue: {}".format(minl_last)
+                result = "Yellow: {0:.5f}".format(minl_last)
                 label_text_b = Label(window, text = result,  font = ("Arial", 12))
                 label_text_b.place(x = 805, y = 690)
         plt.draw()
         
-
-        if (flag):
-            showerror(title = "Ошибка", message = "Треугольники не найдены")
-
                     
 
 def application():
